@@ -9,7 +9,7 @@ if(!isset($_SESSION['ass_id'])){
 
     header("Location: assignments.php");
 }
-echo $sql = 'SELECT asub.id, asub.assignment_id, asub.student_id, asub.file, asub.marks, asub.created_at, s.roll_no, s.name
+$sql = 'SELECT asub.id, asub.assignment_id, asub.student_id, asub.file, asub.marks, asub.created_at, s.roll_no, s.name
 FROM assignment_submissions as asub
 LEFT JOIN students as s
 ON asub.student_id = s.id
