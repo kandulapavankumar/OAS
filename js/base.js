@@ -1,7 +1,7 @@
-$(function() {
+$(function () {
 
 
-    $('.subnavbar').find('li').each(function(i) {
+    $('.subnavbar').find('li').each(function (i) {
 
         var mod = i % 3;
 
@@ -14,14 +14,14 @@ $(function() {
 
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
     $("#generate_excel").val("no");
-    $(".excel_btn").on("click", function() {
+    $(".excel_btn").on("click", function () {
         $("#generate_excel").val("yes");
         $("#driver_location_tracker").submit();
     });
-    $(".submit_btn").on("click", function() {
+    $(".submit_btn").on("click", function () {
         $("#generate_excel").val("no");
         $("#driver_location_tracker").submit();
     })
-   });
+});

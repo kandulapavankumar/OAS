@@ -1,134 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="">
-        <meta name="author" content="">
-        <link rel="shortcut icon" href="../images//favicon.ico">
+<?php
+include 'verification.php';
 
-        <title>Online Assignment Submission</title>
+if(isset($_POST['s_id']) && isset($_POST['l_id'])){
+    $_SESSION['s_id'] = $_POST['s_id'];
+    $_SESSION['l_id'] = $_POST['l_id'];
+}
+if(!isset($_SESSION['year']) || !isset($_SESSION['section']) || !isset($_SESSION['s_id']) || !isset($_SESSION['l_id'])){
 
-        <!-- Bootstrap core CSS -->
-        <link href="./css/bootstrap.min.css" rel="stylesheet">
+    header("Location: index.php");
+}
+$sql = 'SELECT id,name, submission_final_date, file
+FROM assignments
+WHERE year ="'.$_SESSION['year'].'" AND section = "'.$_SESSION['section'].'" AND subject_id = "'.$_SESSION['s_id'].'" AND lecturer_id = "'.$_SESSION['l_id'].'" AND is_valid = "1"
+';
+$assignments = mysql_query($sql);
+$assignmentsCopy = mysql_query($sql);
+$submissions = array();
+if (mysql_num_rows($assignmentsCopy) > 0) {
+    while ($row = mysql_fetch_row($assignmentsCopy)) {
+        $assId = $row[0];
+        $sql = 'select id, file, marks from assignment_submissions where assignment_id = "'.$row[0].'" AND student_id = "'.$_SESSION['user_id'].'"  and is_valid= "1"';
+        $result = mysql_query($sql);
+        if (mysql_num_rows($result) > 0) {
+            while ($rowInner = mysql_fetch_row($result)) {
+                $submissions[$row[0]]['file'] = $rowInner[1];
+                $submissions[$row[0]]['marks'] = $rowInner[2];
+            }
 
-        <!-- Custom styles for this template -->
-        <link href="../css/home.css" rel="stylesheet">
-        <link href="../css/jquery.fileupload-ui.css" rel="stylesheet">
+        } else {
+            $submissions[$row[0]] = 0;
+        }
+    }
+}
+include 'header.php'
 
-        <!-- Just for debugging purposes. Don't actually copy this line! -->
-        <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+?>
+<!-- Custom styles for this template -->
+<link href="../css/home.css" rel="stylesheet">
+<link href="../css/jquery.fileupload-ui.css" rel="stylesheet">
+<?php
+    if(isset($_POST['message'])){
+    echo $_POST['message'];
+}
+?>
+<div class="row">
+    <table class="table table-hover course-table">
+         <tr>
+            <th width="15%">Assignment Name</th>
+            <th width="20%">Questions</th>
+            <th width="15%">Last Date Of Submission</th>
+            <th width="20%">File</th>
+            <th width="15%">marks</th>
+            <th width="15%"></th>
+        </tr>
+        <?php
+        if (mysql_num_rows($assignments) > 0) {
+            while ($row = mysql_fetch_row($assignments)) {
 
-        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!--[if lt IE 9]>
-          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-          <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-        <![endif]-->
-    </head>
+                echo '<tr>';
+                echo '<td>'.$row[1].'</td>';
+                echo '<td><a href="'.$assignmentUploadPath.$row[3].'" download>'.$row[3].'</a></td>';
+                echo '<td>'.$row[2].'</td>';
+                if(isset($submissions[$row[0]]) && $submissions[$row[0]]){
+                    $marks = '-';
+                    if($submissions[$row[0]]['marks']){
+                        $marks = $submissions[$row[0]]['marks'];
+                    }
+                    echo '<td><a href="'.$submittedAssignmentUploadPath.$submissions[$row[0]]['file'].'" download>'.$submissions[$row[0]]['file'].'</td><td>'.$marks.'</td><td>Submitted</td>';
+                }else {
+                    echo '<td><span class="btn btn-default fileinput-button add_attachment_btn "><span>Select file...</span><form class="file-upload" action="file-upload.php" method="post" enctype="multipart/form-data"><input id="fileupload" type="file" name="file"><input type="hidden" name="assignment_id" value="'.$row[0].'"></form></span></td>';
+                    echo '<td>-</td>';
+                    echo '<td><a href="#" onclick="fileUpload(this);" class="btn btn-default" >upload</a></td>';
+                }
+                echo '</tr>';
+            }
+        } else {
+            echo '<tr><td colspan="6" style="text-align: center">No Assignments</td></tr>';
+        }
+        ?>
 
-    <body>
-        <div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
-            <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="#">Online Assignment Submission</a>
-                </div>
-                <div class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav">
-                        <li class="active"><a href="#">Home</a></li>
-                        <li><a href="#about">About</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                    </ul>
-                </div><!-- /.nav-collapse -->
-            </div><!-- /.container -->
-        </div><!-- /.navbar -->
+    </table>
+</div><!--/row-->
+<script>
+    function fileUpload(ele){
+        $(ele).parent().parent().find('.file-upload').submit();
+    }
+</script>
+<?php include 'footer.php' ?>
 
-        <div class="container">
-
-            
-
-                <div class="col-xs-12">
-                    <p class="pull-right visible-xs">
-                        <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>
-                    </p>
-                    <div class="well">
-                        <h1>Hello, world!</h1>
-                        <p>This is an example to show the potential of an offcanvas layout pattern in Bootstrap. Try some responsive-range viewport sizes to see it in action.</p>
-                    </div>
-                    <div class="row">
-                        <table class="table table-hover course-table">
-                             <tr>
-                                <th>Assignment Name</th>		
-                                <th>Questions</th>
-                                <th>Last Date Of Submission</th>
-                                <th>File</th>
-                                <th></th>
-                            </tr>
-                            <tr>
-                                <td>Jill</td>
-                                <td>Smith</td>		
-                                <td>50</td>
-                                <td>
-                                    <span class="btn btn-default fileinput-button add_attachment_btn ">
-                                        <span>Select file...</span>
-                                        <input id="fileupload" type="file" name="files">
-                                    </span>
-                                </td>
-                                <td><a href="../contact.php" class="btn btn-default" >upload</a></td>
-                            </tr>
-                            <tr>
-                                <td>Eve</td>
-                                <td>Jackson</td>		
-                                <td>94</td>
-                               <td><span class="btn btn-default fileinput-button add_attachment_btn ">
-                                        <span>Select file...</span>
-                                        <input id="fileupload" type="file" name="files">
-                                    </span></td>
-                                <td><a href="../contact.php" class="btn btn-default" >upload</a></td>
-                            </tr>
-                            <tr>
-                                <td>John</td>
-                                <td>Doe</td>		
-                                <td>80</td>
-                                <td><span class="btn btn-default fileinput-button add_attachment_btn ">
-                                        <span>Select file...</span>
-                                        <input id="fileupload" type="file" name="files">
-                                    </span></td>
-                                <td><a href="./contact.php" class="btn btn-default" >upload</a></td>
-                            </tr>
-
-
-                        </table>
-                    </div><!--/row-->
-                </div><!--/span-->
-
-                <!--/span-->
-            
-
-            <hr>
-
-            <footer>
-                <p>&copy; OAS 2014</p>
-            </footer>
-
-        </div><!--/.container-->
-
-
-
-        <!-- Bootstrap core JavaScript
-        ================================================== -->
-        <!-- Placed at the end of the document so the pages load faster -->
-        <script src="../js/jquery.min.js"></script>
-        <script src="../js/bootstrap.min.js"></script>
-        <script src="../js/home.js"></script>
-        <script src="../js/jquery.ui.widget.js"></script>
-        <script src="../js/jquery.fileupload-ui.js"></script>
-        
-    </body>
-</html>
+<script src="../js/home.js"></script>
+<script src="../js/jquery.ui.widget.js"></script>
+<script src="../js/jquery.fileupload-ui.js"></script>

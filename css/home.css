@@ -60,5 +60,12 @@ footer {
   {
       
   }
+}
 
+.reset-btn,.back-btn,.submit-btn{
+    width: 110px;
+    display: inline;
+}
+.back-anc:hover{
+    text-decoration: none;
 }

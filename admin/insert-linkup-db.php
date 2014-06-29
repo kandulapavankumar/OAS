@@ -1,16 +1,11 @@
 <?php
-include '../general/db.php';
-include '../general/verify-login.php';
-include '../general/verify-role.php';
-include '../general/global-const.php';
-verifyRole('admin');
-
+include 'verification.php';
 $year = $_POST['year'];
 $section = $_POST['section'];
 $subjectId = $_POST['subject_id'];
 $lecturerId = $_POST['lecturer_id'];
 if($year && $section && $subjectId && $lecturerId){
-    $sql = 'INSERT INTO section_subject_lecturer(year, section, subject_id, lecturer_id, created_at) VALUES("'.$year.'", "'.$section.'", "'.$subjectId.'", "'.$lecturerId.'", now())';
+    $sql = 'INSERT INTO section_subject_lecturer(year, section, subject_id, lecturer_id, is_valid, created_at) VALUES("'.$year.'", "'.$section.'", "'.$subjectId.'", "'.$lecturerId.'", 1, now())';
     $result = mysql_query($sql);
     $message = 'Inserted Successfully';
 } else {
