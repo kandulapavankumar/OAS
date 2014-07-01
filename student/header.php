@@ -40,7 +40,7 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo $_SESSION['name'];?> <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="#">Change Password</a></li>
+                                <li><a href="change-password.php">Change Password</a></li>
                                 <li><a href="../general/logout.php">Logout</a></li>
                             </ul>
                         </li>
