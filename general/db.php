@@ -1,4 +1,7 @@
 <?php
+error_reporting(0);
+@ini_set('display_errors', 0)
+
 // Get Variables
 $dbname = "assignment_management";
 $dbusername = "root";
